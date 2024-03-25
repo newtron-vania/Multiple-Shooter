@@ -126,6 +126,11 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	UE_LOG(LogTemp, Warning, TEXT("Overlapping Weapon End"));
 }
 
+bool ABlasterCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
 void ABlasterCharacter::MoveForward(float Value)
 {
 	if (Controller != nullptr && Value != 0.f)
