@@ -27,7 +27,8 @@ protected:
     void LookUp(float Value);
 	void EquipButtonPressed();
 	void CrouchButtonPressed();
-
+	void AimButtonPressed();
+	void AimButtonReleased();
 private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
@@ -53,4 +54,5 @@ private:
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
+	bool IsAiming();
 };
