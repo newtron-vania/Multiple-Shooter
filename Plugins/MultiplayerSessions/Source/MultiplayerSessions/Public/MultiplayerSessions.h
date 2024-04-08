@@ -9,7 +9,7 @@ class FMultiplayerSessionsModule : public IModuleInterface
 {
 public:
 
-	/** IModuleInterface implementation */
+	/** GUI 구성 요소 */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 };
