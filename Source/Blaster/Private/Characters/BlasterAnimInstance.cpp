@@ -1,6 +1,7 @@
 #include "Characters/BlasterAnimInstance.h"
 #include "Characters/BlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // 애니메이션 초기화
@@ -32,6 +33,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsInAir = BlasterCharacter->GetCharacterMovement()->IsFalling(); // 공중에 떠있는지 여부
 	bIsAccelerating = BlasterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false; // 가속 중인지 여부
 	bWeaponEquipped = BlasterCharacter->IsWeaponEquipped(); // 무기를 장착했는지 여부
+	EquippedWeapon = BlasterCharacter->GetEquippedWeapon(); // 착용중인 무기 확인
 	bIsCrouched = BlasterCharacter->bIsCrouched; // 캐릭터가 웅크렸는지 여부
 	bAiming = BlasterCharacter->IsAiming(); // 조준 중인지 여부
 
@@ -53,4 +55,14 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	// 조준 시 Yaw 및 Pitch 값 설정
 	AO_Yaw = BlasterCharacter->GetAO_Yaw();
 	AO_Pitch = BlasterCharacter->GetAO_Pitch();
+
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && BlasterCharacter->GetMesh())
+	{
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+		FVector OutPosition;
+		FRotator OutRotation;
+		BlasterCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotation));
+	}
 }

@@ -221,6 +221,12 @@ bool ABlasterCharacter::IsAiming()
 	return (Combat && Combat->bAiming); // 조준 상태 여부 반환
 }
 
+AWeapon* ABlasterCharacter::GetEquippedWeapon()
+{
+	if (Combat == nullptr) return nullptr;
+	return Combat->EquippedWeapon;
+}
+
 void ABlasterCharacter::MoveForward(float Value)
 {
 	if (Controller != nullptr && Value != 0.f)
