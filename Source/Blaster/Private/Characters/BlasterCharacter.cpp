@@ -26,6 +26,7 @@ ABlasterCharacter::ABlasterCharacter()
 	// 캐릭터의 회전 및 이동 관련 설정
 	bUseControllerRotationYaw = false; // 컨트롤러 회전 사용 안 함
 	GetCharacterMovement()->bOrientRotationToMovement = true; // 이동 방향으로 캐릭터 회전
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	// 위젯 컴포넌트 생성 및 설정
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
@@ -59,7 +60,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// 다양한 입력에 대한 바인딩 설정
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump); // 점프
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump); // 점프
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed); // 장비 착용
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed); // 웅크리기
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed); // 조준
@@ -177,6 +178,19 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
+
+void ABlasterCharacter::Jump()
+{
+	if(bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Super::Jump();
+	}
+}
+
 // 서버에서 '장비 착용' 실행
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
