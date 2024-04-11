@@ -41,6 +41,8 @@ ABlasterCharacter::ABlasterCharacter()
 	// 충돌 설정
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -150,12 +152,14 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 		bUseControllerRotationYaw = false;
+		TurnInPlace(DeltaTime);
 	}
 	if (Speed > 0.f || bIsInAir) // running, or jumping
 	{
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -186,6 +190,18 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	if (LastWeapon)
 	{
 		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+void ABlasterCharacter::TurnInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+	}
+	else if (AO_Yaw < -90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
 	}
 }
 

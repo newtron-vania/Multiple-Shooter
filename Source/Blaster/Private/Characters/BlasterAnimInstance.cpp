@@ -36,6 +36,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	EquippedWeapon = BlasterCharacter->GetEquippedWeapon(); // 착용중인 무기 확인
 	bIsCrouched = BlasterCharacter->bIsCrouched; // 캐릭터가 웅크렸는지 여부
 	bAiming = BlasterCharacter->IsAiming(); // 조준 중인지 여부
+	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 
 	// 조준 시 이동 방향에 따른 YawOffset 계산
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();
