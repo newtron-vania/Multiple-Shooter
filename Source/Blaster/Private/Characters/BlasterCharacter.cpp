@@ -163,7 +163,7 @@ void ABlasterCharacter::FireButtonPressed()
 {
 	if (Combat)
 	{
-		//Combat->FireButtonPressed(true);
+		Combat->FireButtonPressed(true);
 	}
 }
 
@@ -171,7 +171,7 @@ void ABlasterCharacter::FireButtonReleased()
 {
 	if (Combat)
 	{
-		//Combat->FireButtonPressed(false);
+		Combat->FireButtonPressed(false);
 	}
 }
 
