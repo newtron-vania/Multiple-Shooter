@@ -12,7 +12,7 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FStr
 	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath); // 로비 경로
 	AddToViewport(); // 뷰포트에 추가
 	SetVisibility(ESlateVisibility::Visible); // 가시성 설정
-	bIsFocusable = true; // 포커스 가능 설정
+	SetIsFocusable(true); // 포커스 가능 설정
 
 	UWorld* World = GetWorld(); // 월드 가져오기
 	if(World)
