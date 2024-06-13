@@ -42,7 +42,7 @@
 *.VC.opendb
 
 # Assets
-*.uasset
+Content/Assets/*
 
 # Precompiled Assets
 SourceArt/**/*.png
