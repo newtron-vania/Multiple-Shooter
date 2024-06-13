@@ -14,6 +14,15 @@ UCombatComponent::UCombatComponent()
 	AimWalkSpeed = 450.f;  // 조준 시 이동 속도
 }
 
+
+// 네트워크 복제 속성 설정
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon); // 장착 무기 네트워크 복제 설정
+	DOREPLIFETIME(UCombatComponent, bAiming); // 조준 상태 네트워크 복제 설정
+}
+
 // 게임 시작 시 실행
 void UCombatComponent::BeginPlay()
 {
@@ -59,9 +68,22 @@ void UCombatComponent::onRep_EquippedWeapon()
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
+	if (bFireButtonPressed)
+	{
+		ServerFire();
+	}
+}
 
+void UCombatComponent::ServerFire_Implementation()
+{
+	MulticastFire();
+}
+
+
+void UCombatComponent::MulticastFire_Implementation()
+{
 	if (EquippedWeapon == nullptr) return;
-	if (Character && bFireButtonPressed)
+	if (Character)
 	{
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire();
@@ -75,13 +97,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-// 네트워크 복제 속성 설정
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon); // 장착 무기 네트워크 복제 설정
-	DOREPLIFETIME(UCombatComponent, bAiming); // 조준 상태 네트워크 복제 설정
-}
 
 // 무기 장착
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
