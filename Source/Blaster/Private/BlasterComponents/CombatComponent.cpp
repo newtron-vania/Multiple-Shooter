@@ -4,11 +4,13 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 // 생성자
 UCombatComponent::UCombatComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false; // 매 프레임마다 업데이트하지 않음
+	PrimaryComponentTick.bCanEverTick = true; // 매 프레임마다 업데이트 실시
 
 	BaseWalkSpeed = 600.f; // 기본 이동 속도
 	AimWalkSpeed = 450.f;  // 조준 시 이동 속도
@@ -74,6 +76,53 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	}
 }
 
+void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
+{
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+		UGameplayStatics::GetPlayerController(this, 0),
+		CrosshairLocation,
+		CrosshairWorldPosition,
+		CrosshairWorldDirection
+	);
+
+	if (bScreenToWorld)
+	{
+		FVector Start = CrosshairWorldPosition;
+
+		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
+
+		GetWorld()->LineTraceSingleByChannel(
+			TraceHitResult,
+			Start,
+			End,
+			ECollisionChannel::ECC_Visibility
+		);
+		if (!TraceHitResult.bBlockingHit)
+		{
+			TraceHitResult.ImpactPoint = End;
+		}
+		else
+		{
+			DrawDebugSphere(
+				GetWorld(),
+				TraceHitResult.ImpactPoint,
+				12.f,
+				12,
+				FColor::Red
+			);
+		}
+	}
+}
+
 void UCombatComponent::ServerFire_Implementation()
 {
 	MulticastFire();
@@ -95,6 +144,9 @@ void UCombatComponent::MulticastFire_Implementation()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FHitResult HitResult;
+	TraceUnderCrosshairs(HitResult);
 }
 
 
