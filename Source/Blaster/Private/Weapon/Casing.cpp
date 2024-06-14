@@ -4,10 +4,12 @@
 #include "Weapon/Casing.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Sound/SoundCue.h"
 
 ACasing::ACasing()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	CasingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CasingMesh"));
 	SetRootComponent(CasingMesh);
 
@@ -25,6 +27,8 @@ void ACasing::BeginPlay()
 	Super::BeginPlay();
 
 	CasingMesh->OnComponentHit.AddDynamic(this, &ACasing::OnHit);
+	FRotator RandomRotator = UKismetMathLibrary::RandomRotator() * 0.1f * (FMath::RandBool() ? -1 : 1);
+	CasingMesh->AddLocalRotation(RandomRotator);
 	CasingMesh->AddImpulse(GetActorForwardVector() * ShellEjectionImpulse);
 }
 
@@ -32,6 +36,8 @@ void ACasing::BeginPlay()
 void ACasing::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	if(bIsTimerSet) return;
+	
 	if (ShellSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(
@@ -39,7 +45,7 @@ void ACasing::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 			ShellSound,
 			GetActorLocation());
 	}
-
+	
 	// 3초 뒤에 탄피를 파괴하도록 타이머 설정
 	// 타이머가 이미 설정되지 않은 경우에만 타이머 설정
 	if (!bIsTimerSet)
